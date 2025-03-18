@@ -1,6 +1,10 @@
 ﻿using EmployeesTestTask.Employees.Database;
+using EmployeesTestTask.Employees.Models;
 using EmployeesTestTask.Employees.Repositories;
 using EmployeesTestTask.Employees.Services;
+using EmployeesTestTask.Employees.Validators;
+
+using FluentValidation;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +21,8 @@ public static class EmployeeServiceCollectionExtensions
         services.AddScoped<IEmployeeListService, EmployeeListService>();
 
         services.AddDbContext<EmployeeDbContext>((opt) => opt.UseSqlServer(configuration.GetConnectionString("employees")));
+
+        services.AddScoped<IValidator<IEmployeeDto>, EmployeeDtoValidator>();
 
         return services;
     }

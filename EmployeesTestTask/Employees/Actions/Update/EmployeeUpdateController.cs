@@ -1,5 +1,8 @@
-﻿using EmployeesTestTask.Employees.Actions.List;
+﻿using EmployeesTestTask.Employees.Models;
 using EmployeesTestTask.Employees.Services;
+
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,15 +10,22 @@ namespace EmployeesTestTask.Employees.Actions.Update;
 
 [Route("api/v1.0/employees")]
 [ApiController]
-public class EmployeeUpdateController(IEmployeeUpdateService service) : ControllerBase
+public class EmployeeUpdateController(IEmployeeUpdateService service, IValidator<IEmployeeDto> validator) : ControllerBase
 {
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateEmployeeAsync(int employeeId, EmployeeUpdateDto dto)
+    public async Task<IActionResult> UpdateEmployeeAsync(int id, EmployeeUpdateDto dto)
     {
-        var updatedEmployeeDto = await service.UpdateEmployeeAsync(employeeId, dto);
-        if (updatedEmployeeDto != null)
+        var validationResult = validator.Validate(dto);
+        if (!validationResult.IsValid)
+        {
+            validationResult.AddToModelState(ModelState);
+            return ValidationProblem();
+        }
+
+        var updatedEmployeeDto = await service.UpdateEmployeeAsync(id, dto);
+        if (updatedEmployeeDto == null)
             return NotFound();
 
-        return StatusCode(201, updatedEmployeeDto);
+        return Ok(updatedEmployeeDto);
     }
 }
