@@ -1,18 +1,53 @@
-import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { configureStore, createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type Employee from './types/Employee';
+import * as employeeApi from './api/employeeApi';
 
+const NAME = "employees";
 const initialState: Employee[] = [];
 
+export const loadEmployees = createAsyncThunk(`${NAME}/loadEmployees`, async () => {
+    const response = await employeeApi.getEmployeeList();
+    return response.data;
+});
+
+export const createEmployee = createAsyncThunk(`${NAME}/createEmployee`, async (employee: Omit<Employee, 'id'>) => {
+    const response = await employeeApi.createEmployee(employee);
+    return response.data;
+});
+
+export const updateEmployee = createAsyncThunk(`${NAME}/updateEmployee`, async ({ id, ...employee }: Employee) => {
+    const response = await employeeApi.updateEmployee(id, employee);
+    return response.data;
+});
+
+export const deleteEmployee = createAsyncThunk(`${NAME}/deleteEmployee`, async (id: number) => {
+    await employeeApi.deleteEmployee(id);
+    return id;
+});
+
 const employeeSlice = createSlice({
-    name: 'employees',
+    name: NAME,
     initialState,
-    reducers: {
-        addEmployee: (state, action: PayloadAction<Employee>) => {
+    reducers: {},
+    extraReducers: (builder) => {
+        builder.addCase(loadEmployees.fulfilled, (_, action) => {
+            return action.payload;
+        });
+
+        builder.addCase(createEmployee.fulfilled, (state, action) => {
             state.push(action.payload);
-        },
-        deleteEmployee: (state, action: PayloadAction<number>) => {
-            return state.filter((_, index) => index !== action.payload);
-        },
+        });
+
+        builder.addCase(updateEmployee.fulfilled, (state, action) => {
+            const index = state.findIndex((emp) => emp.id === action.payload.id);
+            if (index !== -1) {
+                state[index] = action.payload;
+            }
+        });
+
+        builder.addCase(deleteEmployee.fulfilled, (state, action) => {
+            return state.filter((emp) => emp.id !== action.payload);
+        });
     },
 });
 
@@ -24,6 +59,6 @@ const store = configureStore({
 });
 
 export type RootState = ReturnType<typeof store.getState>;
-export const { addEmployee, deleteEmployee } = employeeSlice.actions;
+export type AppDispatch = typeof store.dispatch;
 
 export default store;

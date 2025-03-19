@@ -4,12 +4,13 @@ import { RootState } from '../store';
 import { List, ListItem, ListItemText, Button, Typography, Box } from '@mui/material';
 
 interface EmployeeListProps {
-  onEdit: (index: number) => void;
-  onDelete: (index: number) => void;
+  onEdit: (id: number) => void;
+  onDelete: (id: number) => void;
 }
 
 const EmployeeList: React.FC<EmployeeListProps> =  ({ onEdit, onDelete }) => {
   const employees = useSelector((state: RootState) => state.employees);
+  
   if (employees.length === 0) {
     return (
       <Box display="flex" justifyContent="center" padding={5}>
@@ -22,7 +23,7 @@ const EmployeeList: React.FC<EmployeeListProps> =  ({ onEdit, onDelete }) => {
     <List style={{ flexShrink: 1, overflow: "auto" }}>
       {employees.map((employee, index) => (
         <ListItem
-          key={index}
+          key={employee.id}
           style={{
             backgroundColor: index % 2 === 0 ? '#ffffff' : '#f0f0f0',
           }}
@@ -31,10 +32,10 @@ const EmployeeList: React.FC<EmployeeListProps> =  ({ onEdit, onDelete }) => {
             primary={`${employee.firstName} ${employee.lastName}`}
             secondary={`${employee.age} years`}
           />
-          <Button onClick={() => onEdit(index)} color="primary">
+          <Button onClick={() => onEdit(employee.id)} color="primary">
             Edit
           </Button>
-          <Button onClick={() => onDelete(index)} color="secondary">
+          <Button onClick={() => onDelete(employee.id)} color="secondary">
             Delete
           </Button>
         </ListItem>

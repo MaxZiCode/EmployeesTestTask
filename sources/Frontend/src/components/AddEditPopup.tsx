@@ -18,9 +18,16 @@ import Employee from '../types/Employee';
 interface AddEditPopupProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (employee: Employee) => void;
+  onSubmit: (employee: Omit<Employee, "id">) => void;
   initialData?: Employee;
 }
+
+const defaultValues = {
+      firstName: "",
+      lastName: "",
+      age: "",
+      gender: ""
+    };
 
 const AddEditPopup: React.FC<AddEditPopupProps> = ({ open, onClose, onSubmit, initialData }) => {
   const {
@@ -28,14 +35,7 @@ const AddEditPopup: React.FC<AddEditPopupProps> = ({ open, onClose, onSubmit, in
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm({
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      age: "",
-      gender: ""
-    },
-  });
+  } = useForm({ defaultValues });
 
   useEffect(() => {
     if (initialData) {
@@ -44,7 +44,7 @@ const AddEditPopup: React.FC<AddEditPopupProps> = ({ open, onClose, onSubmit, in
         age: initialData.age.toString(),
       });
     } else {
-      reset();
+      reset(defaultValues);
     }
   }, [initialData, reset]);
 
@@ -132,7 +132,7 @@ const AddEditPopup: React.FC<AddEditPopupProps> = ({ open, onClose, onSubmit, in
                 <InputLabel>Gender</InputLabel>
                 <Select {...field} label="Gender">
                   <MenuItem value="Male">Male</MenuItem>
-                  <MenuItem value="emale">Female</MenuItem>
+                  <MenuItem value="Female">Female</MenuItem>
                 </Select>
                 {errors.gender && <FormHelperText>{errors.gender.message}</FormHelperText>}
               </FormControl>
