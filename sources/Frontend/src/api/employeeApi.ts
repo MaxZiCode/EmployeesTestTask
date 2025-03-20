@@ -16,6 +16,6 @@ export function updateEmployee(id: number, employee: Omit<Employee, "id">): Prom
     return defaultAxiosInstance.put(`${EMPLOYEE_ROUTE}/${id}`, employee);
 }
 
-export function deleteEmployee(id: number): Promise<AxiosResponse> {
-    return defaultAxiosInstance.delete(`${EMPLOYEE_ROUTE}/${id}`);
+export function deleteEmployees(ids: number[]): Promise<AxiosResponse> {
+    return defaultAxiosInstance.delete(EMPLOYEE_ROUTE, { data: ids });
 }

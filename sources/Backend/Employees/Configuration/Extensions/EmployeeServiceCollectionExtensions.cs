@@ -17,8 +17,8 @@ public static class EmployeeServiceCollectionExtensions
         services.AddScoped<IEmployeeRepository, EmployeeRepository>();
         services.AddScoped<IEmployeeCreateService, EmployeeCreateService>();
         services.AddScoped<IEmployeeUpdateService, EmployeeUpdateService>();
-        services.AddScoped<IEmployeeDeleteService, EmployeeDeleteService>();
         services.AddScoped<IEmployeeListService, EmployeeListService>();
+        services.AddScoped<IEmployeeBatchDeleteService, EmployeeBatchDeleteService>();
 
         services.AddDbContext<EmployeeDbContext>((opt) => opt.UseSqlServer(configuration.GetConnectionString("employees")));
 

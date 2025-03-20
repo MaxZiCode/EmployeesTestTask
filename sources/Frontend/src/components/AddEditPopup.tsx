@@ -38,6 +38,9 @@ const AddEditPopup: React.FC<AddEditPopupProps> = ({ open, onClose, onSubmit, in
   } = useForm({ defaultValues });
 
   useEffect(() => {
+    if (!open)
+      return;
+    
     if (initialData) {
       reset({
         ...initialData,
@@ -46,7 +49,7 @@ const AddEditPopup: React.FC<AddEditPopupProps> = ({ open, onClose, onSubmit, in
     } else {
       reset(defaultValues);
     }
-  }, [initialData, reset]);
+  }, [initialData, reset, open]);
 
   const onSubmitHandler = (employee: {
       firstName: string,

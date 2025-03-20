@@ -29,8 +29,8 @@ public class EmployeeRepository(EmployeeDbContext dbContext) : IEmployeeReposito
         await dbContext.SaveChangesAsync();
     }
 
-    public virtual async Task RemoveEmployeeAsync(int employeeId)
+    public virtual async Task RemoveManyEmployeesAsync(IEnumerable<int> ids)
     {
-        await dbContext.Employees.Where(e => e.Id == employeeId).ExecuteDeleteAsync();
+        await dbContext.Employees.Where(e => ids.Contains(e.Id)).ExecuteDeleteAsync();
     }
 }

@@ -20,9 +20,9 @@ export const updateEmployee = createAsyncThunk(`${NAME}/updateEmployee`, async (
     return response.data;
 });
 
-export const deleteEmployee = createAsyncThunk(`${NAME}/deleteEmployee`, async (id: number) => {
-    await employeeApi.deleteEmployee(id);
-    return id;
+export const batchDeleteEmployees = createAsyncThunk(`${NAME}/batchDeleteEmployees`, async (ids: number[]) => {
+    await employeeApi.deleteEmployees(ids);
+    return ids;
 });
 
 const employeeSlice = createSlice({
@@ -45,8 +45,8 @@ const employeeSlice = createSlice({
             }
         });
 
-        builder.addCase(deleteEmployee.fulfilled, (state, action) => {
-            return state.filter((emp) => emp.id !== action.payload);
+        builder.addCase(batchDeleteEmployees.fulfilled, (state, action) => {
+            return state.filter((emp) => !action.payload.includes(emp.id));
         });
     },
 });

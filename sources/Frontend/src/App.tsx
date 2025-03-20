@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { loadEmployees, createEmployee, updateEmployee, deleteEmployee, RootState, AppDispatch } from './store';
+import { loadEmployees, createEmployee, updateEmployee, RootState, AppDispatch, batchDeleteEmployees } from './store';
 import RecordsList from './components/EmployeeList';
 import AddEditPopup from './components/AddEditPopup';
 import DeleteConfirmationPopup from './components/DeleteConfirmationPopup';
@@ -14,6 +14,7 @@ const App: React.FC = () => {
   const [isAddEditPopupOpen, setIsAddEditPopupOpen] = useState<boolean>(false);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState<boolean>(false);
   const [editEmployeeData, setEditEmployeeData] = useState<Employee | null>(null);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
   
   useEffect(() => {
     dispatch(loadEmployees());
@@ -24,11 +25,11 @@ const App: React.FC = () => {
     setIsAddEditPopupOpen(true);
   };
   
-  const handleEmployeeAction = (id: number, setPopupFunc: (isOpened: boolean) => void) => {
+  const handleEmployeeAction = (id: number, popupFunc: (open: boolean) => void) => {
     const employee = employees.find((emp) => emp.id === id);
     if (employee) {
       setEditEmployeeData(employee);
-      setPopupFunc(true);
+      popupFunc(true);
     }
   }
 
@@ -40,13 +41,17 @@ const App: React.FC = () => {
     }
     setIsAddEditPopupOpen(false);
   };
+  
+  const handleDelete = () => {
+    setIsDeletePopupOpen(true);
+  };
 
   const handleConfirmDelete = () => {
-    if (editEmployeeData !== null) {
-      dispatch(deleteEmployee(editEmployeeData.id));
-      setEditEmployeeData(null);
-    }
+    if (selectedIds.length)
+      dispatch(batchDeleteEmployees(selectedIds));
+    
     setIsDeletePopupOpen(false);
+    setSelectedIds([]);
   };
 
   return (
@@ -54,10 +59,21 @@ const App: React.FC = () => {
       <Typography variant="h4" gutterBottom>
         Employees List
       </Typography>
-      <RecordsList onEdit={(id) => handleEmployeeAction(id, setIsAddEditPopupOpen)} onDelete={(id) => handleEmployeeAction(id, setIsDeletePopupOpen)} />
+      <RecordsList 
+        onEdit={(id) => handleEmployeeAction(id, setIsAddEditPopupOpen)} 
+        onSelect={setSelectedIds} />
       <Button onClick={handleAddEmployee} variant="contained" color="primary" style={{ marginTop: "16px" }}>
         Add Employee
       </Button>
+      <Button
+          onClick={handleDelete}
+          variant="contained"
+          color="secondary"
+          disabled={selectedIds.length === 0}
+          style={{ marginTop: 12 }}
+        >
+          Delete Selected
+        </Button>
       <AddEditPopup
         open={isAddEditPopupOpen}
         onClose={() => setIsAddEditPopupOpen(false)}
@@ -68,6 +84,7 @@ const App: React.FC = () => {
         open={isDeletePopupOpen}
         onClose={() => setIsDeletePopupOpen(false)}
         onConfirm={handleConfirmDelete}
+        selectedEmployees={employees.filter((emp) => selectedIds.includes(emp.id))}
       />
     </Container>
   );
